@@ -10,7 +10,7 @@ class Program
     {
         Console.Clear();
         StringBuilder sB = new StringBuilder();
-        string[] dlls = dllsToConvert.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] dlls = ParsePaths(dllsToConvert);
         string indent = new string(' ', 2 * 2);
 
         string skippedDlls = "";
@@ -60,34 +60,78 @@ class Program
         //Console.WriteLine($"""Skipped "dlls" were...{skippedDlls}""");
     }
 
+    static string[] ParsePaths(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return Array.Empty<string>();
+
+            var paths = new List<string>();
+            bool inQuotes = false;
+            StringBuilder currentPath = new StringBuilder();
+            char quoteChar = '\0';
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                char c = input[i];
+
+                if ((c == '"' || c == '\'') && (i == 0 || input[i-1] != '\\'))
+                {
+                    if (inQuotes && c == quoteChar)
+                    {
+                        inQuotes = false;
+                        quoteChar = '\0';
+                    }
+                    else if (!inQuotes)
+                    {
+                        inQuotes = true;
+                        quoteChar = c;
+                    }
+                    continue;
+                }
+
+                if (c == ' ' && !inQuotes)
+                {
+                    if (currentPath.Length > 0)
+                    {
+                        paths.Add(currentPath.ToString().Trim('"', '\''));
+                        currentPath.Clear();
+                    }
+                    continue;
+                }
+
+                currentPath.Append(c);
+            }
+
+            if (currentPath.Length > 0)
+            {
+                paths.Add(currentPath.ToString().Trim('"', '\''));
+            }
+
+            return paths.ToArray();
+        }
+
     static void MoveDlls(string? dllsToMove, string movePath)
     {
-        string[] dllPaths = dllsToMove.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] dllPaths = ParsePaths(dllsToMove);
+        string validMovePath = Path.GetFullPath(movePath);
 
         foreach (string dllPath in dllPaths)
-        {
-            string validDllPathMaybePLease = dllPath.Replace("'", "");
-            string validMovePathMaybePlease = movePath.Replace("'", "");
-            if (!validDllPathMaybePLease.EndsWith(".dll"))
+        {  
+            string fullFileName = Path.GetFileName(dllPath);
+            if (!fullFileName.EndsWith(".dll"))
             {
-
-            } else {
-                if (Path.Exists(validDllPathMaybePLease) && Path.Exists(validMovePathMaybePlease))
+                Console.WriteLine("""This "dll" file has a problem: {0}""", fullFileName);
+            }
+            else
+            {
+                if (Path.Exists(dllPath) && Path.Exists(validMovePath))
                 {
                     try
                     {
-                        string fullFileName = Path.GetFileName(dllPath);
-                        if (!fullFileName.EndsWith(".dll"))
-                        {
-
-                        }
-                        else
-                        {
-
-                            string asdasd = Path.Combine(movePath, Path.GetFileName(dllPath));
-                            File.Copy(dllPath, asdasd);
-                            Console.WriteLine($"Moved {fullFileName}!");
-                        }
+                        string asdasd = Path.Combine(movePath, Path.GetFileName(dllPath));
+                        File.Copy(dllPath, asdasd);
+                        Console.WriteLine($"Moved {fullFileName}!");
+                        
                     }
                     catch (Exception e)
                     {
@@ -95,16 +139,17 @@ class Program
                         Thread.Sleep(1000);
                         Main(new string[] { });
                     }
-                }else
+                }
+                else
                 {
-                    Console.WriteLine(validDllPathMaybePLease);
-                    Console.WriteLine(validMovePathMaybePlease);
+                    Console.WriteLine(dllPath);
+                    Console.WriteLine(validMovePath);
                     Console.WriteLine("Failed to move dlls, invalid path(s)");
                     Thread.Sleep(10000);
                     Main(new string[] { });
                 }
             }
-            
+
         }
         Thread.Sleep(1000);
         Main(new string[] { });

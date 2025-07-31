@@ -16,3 +16,4 @@
 /home/jrvr/Documents/DllToDependency/obj/Debug/net9.0/DllToDependency.pdb
 /home/jrvr/Documents/DllToDependency/obj/Debug/net9.0/DllToDependency.genruntimeconfig.cache
 /home/jrvr/Documents/DllToDependency/obj/Debug/net9.0/ref/DllToDependency.dll
+/home/jrvr/Documents/DllToDependency/obj/Debug/net9.0/DllToDependency.sourcelink.json
