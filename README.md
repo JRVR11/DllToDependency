@@ -21,7 +21,7 @@ DllToDependency is a tool designed to simplify the process of using DLLs as depe
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/JRVR11/DllToDependency.git
+   git clone https://github.com/jrvr-cs/DllToDependency.git
    ```
 2. Navigate to the project directory:
    ```bash
